@@ -9,26 +9,36 @@ import AddCommentForm from "../components/AddCommentForm";
 import useUser from "../hooks/useUser";
 
 const ArticlePage = () => {
-    const [articleInfo, setArticleInfo] = useState({upvotes: 0, comments: []});
+    const [articleInfo, setArticleInfo] = useState({upvotes: 0, comments: [], canUpvote: false});
+    const {canUpvote} = articleInfo;
     const { articleId } = useParams();
 
     const { user, isLoading } = useUser();
 
     useEffect (() =>{
         const loadArticleInfo = async () => {
-        const response = await axios.get(`/api/articles/${articleId}`);
+            const token = user && await user.getIdToken();
+            const headers = token ? {authtoken: token} : {};
+        const response = await axios.get(`/api/articles/${articleId}`, {
+            headers
+        });
         const newArticleInfo = response.data;
         setArticleInfo(newArticleInfo);
 
         }
-        loadArticleInfo();
-    }, []);
+        if (isLoading){
+            loadArticleInfo();
+        }
+       
+    }, [isLoading, user]);
 
     
     const article = articles.find(article => article.name === articleId);
 
     const addUpvote = async () => {
-        const response = await axios.put(`/api/articles/${articleId}/upvote`);
+        const token = user && await user.getIdToken();
+            const headers = token ? {authtoken: token} : {};
+        const response = await axios.put(`/api/articles/${articleId}/upvote`, null, {headers});
         const updatesArticle = response.data;
         setArticleInfo(updatesArticle);
     }
@@ -45,7 +55,7 @@ const ArticlePage = () => {
             <h1>{title}</h1>
             <div>
                 { user 
-                ?  <button onClick={addUpvote}>Upvote</button>  
+                ?  <button onClick={addUpvote}>{canUpvote ? 'Upvote': 'already upvoted'}</button>  
             : <button>Log in first</button>}
             </div>
            
