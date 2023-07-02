@@ -14,21 +14,42 @@ const ArticlePage = () => {
     const { articleId } = useParams();
     const { user, isLoading } = useUser();
 
-    useEffect (() =>{
-        const loadArticleInfo = async () => {
-            const token = user && await user.getIdToken();
-            const headers = token ? {authtoken: token} : {};
-            const response = await axios.get(`/api/articles/${articleId}`, {
-                headers
-            });
-            const newArticleInfo = response.data;
-            setArticleInfo(newArticleInfo);
-        }
-         if (isLoading){
-            loadArticleInfo();
-        }
+    // useEffect (() =>{
+    //     const loadArticleInfo = async () => {
+    //         const token = user && await user.getIdToken();
+    //         const headers = token ? {authtoken: token} : {};
+    //         const response = await axios.get(`/api/articles/${articleId}`, {
+    //             headers
+    //         });
+    //         const newArticleInfo = response.data;
+    //         setArticleInfo(newArticleInfo);
+    //     }
+    //      if (isLoading){
+    //         loadArticleInfo();  
+    //     }
        
-    }, [isLoading, user]);
+    // }, [isLoading, user]);
+
+    // ...
+
+useEffect(() => {
+    const loadArticleInfo = async () => {
+      const token = user && (await user.getIdToken());
+      const headers = token ? { authtoken: token } : {};
+      const response = await axios.get(`/api/articles/${articleId}`, {
+        headers,
+      });
+      const newArticleInfo = response.data;
+      setArticleInfo(newArticleInfo);
+    };
+  
+    if (isLoading) {
+      loadArticleInfo();
+    }
+  }, [isLoading, user, articleId]); // Add articleId to the dependency array
+  
+  // ...
+  
 
     
     const article = articles.find(article => article.name === articleId);
